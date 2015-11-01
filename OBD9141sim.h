@@ -86,15 +86,18 @@ class OBD9141sim{
 
   
   public:
-        OBD9141sim(OBD_SERIAL_DATA_TYPE serial_port, uint8_t rx_pin, uint8_t tx_pin);
+        OBD9141sim();
         // Advised usage:
-        // OBD9141sim car = OBD9141sim(Serial1, RX_PIN, TX_PIN);
-        // car.keep_init_state(true);
-        // car.initialize();
+        //  OBD9141sim car;
+        //  car.begin(Serial1, RX_PIN, TX_PIN);
+        //  car.keep_init_state(true);
+        //  car.initialize();
         //
-        // Usage with init enabled:
+        // Usage with init enabled (set OBD9141SIM_SIMULATE_INIT).
         // OBD9141sim car = OBD9141sim(Serial1, RX_PIN, TX_PIN);
 
+        void begin(OBD_SERIAL_DATA_TYPE & serial_port, uint8_t rx_pin, uint8_t tx_pin);
+        // begin method which allows setting the serial port and pins.
 
         // Answers are kept based on their unique (mode, pid) tuple.
 

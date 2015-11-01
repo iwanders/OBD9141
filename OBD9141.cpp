@@ -5,8 +5,9 @@
 
 #include "OBD9141.h"
 
+OBD9141::OBD9141(){};
 
-OBD9141::OBD9141(OBD_SERIAL_DATA_TYPE serial_port, uint8_t rx_pin, uint8_t tx_pin){
+void OBD9141::begin(OBD_SERIAL_DATA_TYPE & serial_port, uint8_t rx_pin, uint8_t tx_pin){
     this->serial = &serial_port;
     this->tx_pin = tx_pin;
     this->rx_pin = rx_pin;
@@ -136,7 +137,6 @@ uint8_t OBD9141::readUint8(uint8_t index){
 
 bool OBD9141::init(){
     // this function performs the ISO9141 5-baud 'slow' init.
-
     this->set_port(false); // disable the port.
     this->kline(true);
     delay(OBD9141_INIT_IDLE_BUS_BEFORE); // no traffic on bus for 3 seconds.

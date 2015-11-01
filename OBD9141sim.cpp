@@ -6,8 +6,9 @@
 #include "OBD9141sim.h"
 
 
+OBD9141sim::OBD9141sim(){};
 
-OBD9141sim::OBD9141sim(OBD_SERIAL_DATA_TYPE serial_port, uint8_t rx_pin, uint8_t tx_pin){
+void OBD9141sim::begin(OBD_SERIAL_DATA_TYPE & serial_port, uint8_t rx_pin, uint8_t tx_pin){
     this->serial = &serial_port;
     this->tx_pin = tx_pin;
     this->rx_pin = rx_pin;

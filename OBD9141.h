@@ -92,10 +92,10 @@ class OBD9141{
 
 
     public:
-        OBD9141(OBD_SERIAL_DATA_TYPE serial_port, uint8_t rx_pin, uint8_t tx_pin);
-        // constructor, takes Serial object, the rx_pin and tx_pin number
-        // related to it, pin numbers are necessary to create the init sequence.
+        OBD9141();
 
+        void begin(OBD_SERIAL_DATA_TYPE & serial_port, uint8_t rx_pin, uint8_t tx_pin);
+        // begin method which allows setting the serial port and pins.
 
 
         bool getCurrentPID(uint8_t pid, uint8_t return_length);
