@@ -20,7 +20,7 @@ The EN pin can either be connected to a pin on the microcontroller or just pulle
 
 In the logic folder are some recordings made with a [Saleae logic analyzer][saleae], these show the state of the K-line pin using either a Bluetooth OBD-II reader or this library, these might be useful when developing your own hardware. All timing parameters can be tweaked from the header file, by tuning these parameters, performance of up to 20 requests per second has been achieved (on the same car, 6 readings per second was the maximum with the Bluetooth dongle).
 
-Two examples are given in the example folder, one for the simulator and one to read data. For information on how to use the library, refer to to the header file and examples.
+Three examples are given in the example folder. The `reader` and `simulator` examples are to be used with a hardware serial port. The `reader_softserial` example shows how to use it with the [AltSoftSerial][altsoftserial] library. For more information on how to use the library, refer to to the header files.
 
 License
 ------
