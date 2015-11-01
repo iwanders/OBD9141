@@ -7,6 +7,17 @@
 #define OBD9141_H
 #include "Arduino.h"
 
+// to do some debug printing.
+//#define OBD9141_DEBUG
+
+//#define OBD9141_USE_ALTSOFTSERIAL
+// use AltSoftSerial.h instead of the hardware Serial
+
+// AltSoftSerial is automatically selected when an Arduino is used:
+#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328P__)
+// Be sure that this library is available, download from http://www.pjrc.com/teensy/td_libs_AltSoftSerial.html"
+#define OBD9141_USE_ALTSOFTSERIAL
+#endif
 
 #define OBD9141_KLINE_BAUD 10400 
 // as per spec.
@@ -56,7 +67,6 @@
 // It is not present in the spec, but prevents a request immediately after the
 // init has succeeded when the other side might not yet be ready.
 
-// #define OBD9141_DEBUG
 
 #ifdef OBD9141_DEBUG
     #define OBD9141print(a) Serial.print(a);
@@ -67,10 +77,15 @@
     #define OBD9141println(a)
 #endif
 
-
+// use the correct Serial datatype.
+#ifdef OBD9141_USE_ALTSOFTSERIAL
+// Be sure that this library is available, download it from http://www.pjrc.com/teensy/td_libs_AltSoftSerial.html"
+#include <AltSoftSerial.h>
+#define OBD_SERIAL_DATA_TYPE AltSoftSerial
+#else
 #define OBD_SERIAL_DATA_TYPE HardwareSerial
-// #define OBD_SERIAL_DATA_TYPE AltSoftSerial
-// needs to have begin() as well as read(), available() and write() from Stream.
+#endif
+// OBD_SERIAL_DATA_TYPE needs to have begin() as well as read(), available() and write() from Stream.
 
 
 class OBD9141{

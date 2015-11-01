@@ -2,7 +2,6 @@
  *  Copyright (c) 2015, Ivor Wanders
  *  MIT License, see the LICENSE.md file in the root folder.
 */
-
 #include "OBD9141.h"
 
 OBD9141::OBD9141(){};
@@ -55,6 +54,7 @@ void OBD9141::write(void* b, uint8_t len){
     delay(OBD9141_WAIT_FOR_ECHO);
     for (uint8_t i=0; i < len ; i++){
         if (this->serial->available()){
+            //Serial.print("Discarding: "); Serial.println(this->serial->read());
             this->serial->read();
         }
     }
@@ -75,8 +75,7 @@ bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len){
     this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * ret_len + OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT);
     memset(this->buffer, 0, ret_len+1);
     
-    // OBD9141print("Trying to get x bytes: "); OBD9141println(ret_len+1);
-
+    //OBD9141print("Trying to get x bytes: "); OBD9141println(ret_len+1);
     if (this->serial->readBytes(this->buffer, ret_len+1)){
         // for (uint8_t i=0; i< (ret_len+1); i++){
             // OBD9141print(this->buffer[i]);OBD9141print(" ");
@@ -84,6 +83,7 @@ bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len){
         
         return (this->checksum(&(this->buffer[0]), ret_len) == this->buffer[ret_len]);// have data; return whether it is valid.
     } else {
+        OBD9141print("Timeout on reading bytes.");
         return false; // failed getting data.
     }
 }
