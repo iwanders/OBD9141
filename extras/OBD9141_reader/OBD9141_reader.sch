@@ -1,0 +1,171 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:conn
+LIBS:SN65HVDA195
+LIBS:OBD9141_reader-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L SN65HVDA195 U1
+U 1 1 5636199E
+P 3800 1900
+F 0 "U1" H 3800 1800 50  0000 C CNN
+F 1 "SN65HVDA195" H 3800 2150 50  0000 C CNN
+F 2 "MODULE" H 3800 1900 50  0001 C CNN
+F 3 "DOCUMENTATION" H 3800 1900 50  0001 C CNN
+	1    3800 1900
+	1    0    0    -1  
+$EndComp
+$Comp
+L +12V #PWR4
+U 1 1 563619D6
+P 3750 1300
+F 0 "#PWR4" H 3750 1150 50  0001 C CNN
+F 1 "+12V" H 3750 1440 50  0000 C CNN
+F 2 "" H 3750 1300 60  0000 C CNN
+F 3 "" H 3750 1300 60  0000 C CNN
+	1    3750 1300
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR3
+U 1 1 563619EC
+P 4800 2050
+F 0 "#PWR3" H 4800 1800 50  0001 C CNN
+F 1 "GND" H 4800 1900 50  0000 C CNN
+F 2 "" H 4800 2050 60  0000 C CNN
+F 3 "" H 4800 2050 60  0000 C CNN
+	1    4800 2050
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R1
+U 1 1 56361A66
+P 5050 1750
+F 0 "R1" V 5150 1750 50  0000 C CNN
+F 1 "1k" V 5050 1750 50  0000 C CNN
+F 2 "" V 4980 1750 30  0000 C CNN
+F 3 "" H 5050 1750 30  0000 C CNN
+	1    5050 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L D D1
+U 1 1 56361A93
+P 4200 1300
+F 0 "D1" H 4300 1400 50  0000 C CNN
+F 1 "1N4007" H 4050 1400 50  0000 C CNN
+F 2 "" H 4200 1300 60  0000 C CNN
+F 3 "" H 4200 1300 60  0000 C CNN
+	1    4200 1300
+	-1   0    0    1   
+$EndComp
+$Comp
+L C C1
+U 1 1 56361AE2
+P 4850 1550
+F 0 "C1" H 4750 1450 50  0000 L CNN
+F 1 "100nF" V 4750 1500 50  0000 L CNN
+F 2 "" H 4888 1400 30  0000 C CNN
+F 3 "" H 4850 1550 60  0000 C CNN
+	1    4850 1550
+	1    0    0    -1  
+$EndComp
+Text GLabel 5100 1950 2    60   Input ~ 0
+K-line
+Wire Wire Line
+	4550 1950 5100 1950
+$Comp
+L GND #PWR2
+U 1 1 56361CE9
+P 4850 1750
+F 0 "#PWR2" H 4850 1500 50  0001 C CNN
+F 1 "GND" H 4850 1600 50  0000 C CNN
+F 2 "" H 4850 1750 60  0000 C CNN
+F 3 "" H 4850 1750 60  0000 C CNN
+	1    4850 1750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4550 2050 4800 2050
+Connection ~ 5050 1950
+$Comp
+L D D2
+U 1 1 56361F39
+P 5050 1450
+F 0 "D2" H 5050 1550 50  0000 C CNN
+F 1 "1N4007" H 5050 1350 50  0000 C CNN
+F 2 "" H 5050 1450 60  0000 C CNN
+F 3 "" H 5050 1450 60  0000 C CNN
+	1    5050 1450
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	5050 1900 5050 1950
+Text GLabel 2950 1650 0    60   Input ~ 0
+MCU-Rx
+Text GLabel 2950 2150 0    60   Input ~ 0
+MCU-Tx
+$Comp
+L GND #PWR1
+U 1 1 56361F13
+P 2800 1950
+F 0 "#PWR1" H 2800 1700 50  0001 C CNN
+F 1 "GND" H 2650 1900 50  0000 C CNN
+F 2 "" H 2800 1950 60  0000 C CNN
+F 3 "" H 2800 1950 60  0000 C CNN
+	1    2800 1950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2800 1950 3050 1950
+Wire Wire Line
+	2950 2150 3000 2150
+Wire Wire Line
+	3000 2150 3000 2050
+Wire Wire Line
+	3000 2050 3050 2050
+Wire Wire Line
+	2950 1650 3000 1650
+Wire Wire Line
+	3000 1650 3000 1750
+Wire Wire Line
+	3000 1750 3050 1750
+Text GLabel 2950 1850 0    60   Input ~ 0
+MCU-En
+Wire Wire Line
+	2950 1850 3050 1850
+Wire Wire Line
+	3750 1300 4050 1300
+Wire Wire Line
+	4650 1300 4650 1850
+Connection ~ 4650 1300
+Wire Wire Line
+	4850 1300 4850 1400
+Connection ~ 4850 1300
+Wire Wire Line
+	4850 1700 4850 1750
+Wire Wire Line
+	4350 1300 5050 1300
+Wire Wire Line
+	4650 1850 4550 1850
+Text Notes 3850 1200 0    60   ~ 0
+(battery)
+Text Notes 5450 1300 3    60   ~ 0
+Might work\nwithout\nR1 & D2.
+Text Notes 4700 2350 2    51   ~ 0
+EN must be high to enable the chip. (3.3v compatible)
+$EndSCHEMATC
