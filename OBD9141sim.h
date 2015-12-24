@@ -16,6 +16,7 @@
 #define OBD9141SIM_ANSWER_LIST 8
 // length of the list containing potential answers
 
+#define OBD9141SIM_AFTER_REQUEST_DELAY 30
 
 
 // It is possible to simulate the handshake, however, this handshake simulation

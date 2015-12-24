@@ -107,7 +107,7 @@ void OBD9141sim::answerRequest(uint8_t mode, uint8_t pid){
         // OBD9141print("[SIM] message[");OBD9141print(i);OBD9141print("]:"); OBD9141println(message[i]);
     // }
     OBD9141print("[SIM] calcd checksum:"); OBD9141println(message[message_length]);
-    delay(OBD9141_AFTER_REQUEST_DELAY+1);
+    delay(OBD9141SIM_AFTER_REQUEST_DELAY+1);
     this->write(&(message[0]), message_length+1);
     
 
@@ -161,23 +161,23 @@ void OBD9141sim::loop(){
     #endif
 }
 void OBD9141sim::write(uint8_t b){
+    // OBD9141print("w: "); OBD9141println(b);
     this->serial->write(b);
-    delay(OBD9141_WAIT_FOR_ECHO);
-    if (this->serial->available()){
-            this->serial->read(); // discard echo
-    }
+    
+    this->serial->setTimeout(OBD9141_REQUEST_ECHO_MS_PER_BYTE * 1 + OBD9141_WAIT_FOR_ECHO_TIMEOUT);
+    uint8_t tmp[1]; // temporary variable to read into.
+    this->serial->readBytes(tmp, 1);
 }
+
 void OBD9141sim::write(void* b, uint8_t len){
     for (uint8_t i=0; i < len ; i++){
+        // OBD9141print("w: ");OBD9141println(reinterpret_cast<uint8_t*>(b)[i]);
         this->serial->write(reinterpret_cast<uint8_t*>(b)[i]);
         delay(OBD9141_INTERSYMBOL_WAIT);
     }
-    delay(OBD9141_WAIT_FOR_ECHO);
-    for (uint8_t i=0; i < len ; i++){
-        if (this->serial->available()){
-            this->serial->read(); // discard echo
-        }
-    }
+    this->serial->setTimeout(OBD9141_REQUEST_ECHO_MS_PER_BYTE * len + OBD9141_WAIT_FOR_ECHO_TIMEOUT);
+    uint8_t tmp[len]; // temporary variable to read into.
+    this->serial->readBytes(tmp, len);
 }
 
 

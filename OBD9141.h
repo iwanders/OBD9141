@@ -22,17 +22,28 @@
 #define OBD9141_KLINE_BAUD 10400 
 // as per spec.
 
-#define OBD9141_WAIT_FOR_ECHO 5 
-// When data is sent over the serial port to the K-line transceiver, an echo of
-// this data is heard on the Rx pin; this determines the delay in milliseconds
-// between sending data and reading the same number of bytes from the serial
-// port to discard the echo.
-
 
 #define OBD9141_BUFFER_SIZE 16
 // maximum possible as per protocol is 256 payload, the buffer also contains
 // request and checksum, add 5 + 1 for those on top of the max desired length.
 // User needs to guarantee that the ret_len never exceeds the buffer size.
+
+#define OBD9141_INTERSYMBOL_WAIT 5
+// Milliseconds delay between writing of subsequent bytes on the bus.
+// Is 5ms according to the specification.
+
+
+// When data is sent over the serial port to the K-line transceiver, an echo of
+// this data is heard on the Rx pin; this determines the timeout of readBytes
+// used after sending data and trying to read the same number of bytes from the
+// serial port to discard the echo.
+// The total timeout for reading the echo is:
+// (OBD9141_REQUEST_ECHO_TIMEOUT_MS * sent_len + 
+//                      OBD9141_WAIT_FOR_ECHO_TIMEOUT) milliseconds.
+#define OBD9141_WAIT_FOR_ECHO_TIMEOUT 5
+// Time added to the timeout to read the echo.
+#define OBD9141_REQUEST_ECHO_MS_PER_BYTE 3
+// Time added per byte sent to wait for the echo.
 
 
 // When a request is to be made, request bytes are pushed on the bus with
@@ -42,22 +53,16 @@
 // (OBD9141_REQUEST_ANSWER_MS_PER_BYTE * ret_len + 
 //                      OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT) milliseconds.
 
-#define OBD9141_INTERSYMBOL_WAIT 5
-// milliseconds delay between writing of subsequent bytes on the bus.
-// Is 5ms according to the specification.
-
-#define OBD9141_AFTER_REQUEST_DELAY 30
-// delay between finished sending the data and reading the response.
-// 30ms according to spec, can be made zero if 
-// OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT is increased.
-
 #define OBD9141_REQUEST_ANSWER_MS_PER_BYTE 3
 // The ECU might not push all bytes on the bus immediately, but wait several ms
-// between the bytes, this is basically the INTERSYMBOL_WAIT in the answer.
+// between the bytes, this is the time allowed per byte for the answer
 
-#define OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT 0
-// Additional time added to add to the read timeout when reading the response on
-// a request. 
+#define OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT (30 + 10)
+// Time added to the read timeout when reading the response to a request. 
+// This should incorporate the 30 ms that's between the request and answer
+// according to the specification.
+
+
 
 #define OBD9141_INIT_IDLE_BUS_BEFORE 3000
 // Before the init sequence; the bus is kept idle for this duration in ms.

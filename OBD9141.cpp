@@ -39,10 +39,10 @@ uint8_t OBD9141::checksum(void* b, uint8_t len){
 void OBD9141::write(uint8_t b){
     // OBD9141print("w: "); OBD9141println(b);
     this->serial->write(b);
-    delay(OBD9141_WAIT_FOR_ECHO);
-    if (this->serial->available()){
-        this->serial->read(); // discard echo
-    }
+    
+    this->serial->setTimeout(OBD9141_REQUEST_ECHO_MS_PER_BYTE * 1 + OBD9141_WAIT_FOR_ECHO_TIMEOUT);
+    uint8_t tmp[1]; // temporary variable to read into.
+    this->serial->readBytes(tmp, 1);
 }
 
 void OBD9141::write(void* b, uint8_t len){
@@ -51,13 +51,9 @@ void OBD9141::write(void* b, uint8_t len){
         this->serial->write(reinterpret_cast<uint8_t*>(b)[i]);
         delay(OBD9141_INTERSYMBOL_WAIT);
     }
-    delay(OBD9141_WAIT_FOR_ECHO);
-    for (uint8_t i=0; i < len ; i++){
-        if (this->serial->available()){
-            //Serial.print("Discarding: "); Serial.println(this->serial->read());
-            this->serial->read();
-        }
-    }
+    this->serial->setTimeout(OBD9141_REQUEST_ECHO_MS_PER_BYTE * len + OBD9141_WAIT_FOR_ECHO_TIMEOUT);
+    uint8_t tmp[len]; // temporary variable to read into.
+    this->serial->readBytes(tmp, len);
 }
 
 bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len){
@@ -68,8 +64,8 @@ bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len){
 
     this->write(&buf, request_len+1);
 
-    // wait after the request
-    delay(OBD9141_AFTER_REQUEST_DELAY);
+    // wait after the request, officially 30 ms, but we might as well wait
+    // for the data in the readBytes function.
     
     // set proper timeout
     this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * ret_len + OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT);
