@@ -1,0 +1,82 @@
+\documentclass{standalone}
+
+% Some ugly LaTeX code...
+%convert -density 300 timing_diagram.pdf timing_diagram.png
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{tikz-timing}
+% \usetikztiminglibrary{either}
+
+% default; H L Z X D U T C M G S
+
+\tikztimingmetachar{I}[0]{ 8H} % Idle K-line
+\tikztimingmetachar{B}[2]{6D{\texttt{#2}}} % Byte, Serial
+\tikztimingmetachar{P}[2]{  6D{\texttt{#2}}  } % Byte, Serial
+% \tikztimingmetachar{F}[2]{H EEE 2H{\texttt{#2}} EEE H} % Byte, Serial
+\tikztimingmetachar{A}[0]{3Z} % Serial separation.
+\tikztimingmetachar{X}[0]{3H} % Serial separation.
+
+
+% drawing the real waveforms didn't make it more legible, so lets not do that.
+% z = lambda x: ' '.join([ 'H' if a == "1" else 'L' for a in "{:0>8b}0".format(x)[::-1]])
+% x = lambda x: '{' + z(x) + '} % ' + hex(x) + ' serial'
+% \tikztimingmetachar{a}[0]{L L L L H L H H L} % 68 serial'
+% \tikztimingmetachar{a}[0]{L L L L H L H H L} % 68 serial'
+% \tikztimingmetachar{b}[0]{L L H L H L H H L} % 6a serial
+% \tikztimingmetachar{c}[0]{L H L L L H H H H} % F1 serial'
+% \tikztimingmetachar{d}[0]{L H L L L L L L L} % 01 serial'
+% \tikztimingmetachar{e}[0]{L H L H H L L L L} % 0D serial'
+
+
+
+% raw request: {68, 6A, F1, 01, 0D}
+% returns:  48  6B  11  41  0D  00  12 
+
+\tikztimingsetwscale{0.25}
+
+\begin{document}
+\begin{tikztimingtable}[>=stealth, markvertical/.style={gray, thick, dashed},timing/slope=.05]
+    \texttt{Serial.write} &  8Z N(before_request_sent)  B{68} A B{68} A B{F1} A B{01} A B{0D} A N(after_request_sent) 157Z\\
+    Tx line & [] 8H  P{68} X P{68} X P{F1} X P{01} X P{0D} X  157H\\
+    K-Line        & 9H P{68} X P{68} X P{F1} X P{01} X P{0D}  3Z[black]  80Z[black] 3Z[black] N(before_response) P{48} X P{6B} X P{11} X P{41} X P{0D} X P{00} X P{12} 3Z 10Z\\
+    Rx line & []  10H P{68} X P{68} X P{F1} X P{01} X P{0D} X 81H X P{48} X P{6B} X P{11} X P{41} X P{0D} X P{00} X P{12} X 08H \\
+    `\texttt{Serial.Read()}' & 53Z N(before_echo_receive) B{68} B{68} B{F1}  B{01} B{0D} N(after_echo) 54Z  A B{48} A  B{6B} A B{11} A B{41} A B{0D} A B{00} A B{12} N(after_response_read)  10Z\\
+    Writing      & [Green] 8L 5{6H3L} 157L  \\
+    Delaying      & [Blue] 8L 6L N(before_first_intersymbol) 3H  N(after_first_intersymbol)  4{6L3H} 0H 30L 15L 112L  \\
+    in \texttt{readBytes}      &  [Red]  8L 45L 0L 30H  1L N(start_reading_response) 116H 10L \\% 30 + 80
+    ~&  N(first_annotation_line) 1S\\
+    Activity &  N(second_annotation_line) 1S\\
+    Phase &  N(third_annotation_line) 1S\\
+    \extracode
+    \begin{pgfonlayer}{background}
+        % \vertlines [help lines]{4 ,4.5}
+        \draw[markvertical] (before_request_sent) -- (third_annotation_line -| before_request_sent);
+        \draw[markvertical] (after_request_sent) -- (second_annotation_line -| after_request_sent);
+        \draw[markvertical] (after_echo) -- (second_annotation_line -| after_echo);
+        \draw[markvertical] (after_response_read) -- (third_annotation_line -| after_response_read);
+        \draw[markvertical] (start_reading_response) -- (third_annotation_line -| start_reading_response);
+        \draw[markvertical] (before_response) -- (first_annotation_line -| before_response);
+        \draw[markvertical] (before_first_intersymbol) -- (first_annotation_line -| before_first_intersymbol);
+        \draw[markvertical] (after_first_intersymbol) -- (first_annotation_line -| after_first_intersymbol);
+
+        \draw[-] (first_annotation_line -| before_first_intersymbol) ++(-0.5,0)  -- node[pos=1, right=5]{intersymbol} (first_annotation_line -| after_first_intersymbol) -- ++(0.5,0);
+        \draw[->] (first_annotation_line -| before_first_intersymbol) ++(-1,0) -- (first_annotation_line -| before_first_intersymbol);
+        \draw[->] (first_annotation_line -| after_first_intersymbol) ++(1,0) -- (first_annotation_line -| after_first_intersymbol);
+
+        \draw[<->] (second_annotation_line -| before_request_sent) -- node[midway, below]{writing} (second_annotation_line -| after_request_sent);
+        \draw[<->] (second_annotation_line -| after_request_sent) -- node[midway, below]{echo} (second_annotation_line -| after_echo);
+
+        \draw[<->] (first_annotation_line -| start_reading_response) -- node[midway, below]{before ECU answer} (first_annotation_line -| before_response);
+        \draw[<->] (first_annotation_line -| before_response) -- node[midway, below]{ECU answer} (first_annotation_line -| after_response_read);
+
+
+        \draw[<->] (second_annotation_line -| start_reading_response) -- node[midway, below]{reading answer} (second_annotation_line -| after_response_read);
+
+        \draw[<->] (third_annotation_line -| before_request_sent) -- node[midway, below]{request} (third_annotation_line -| after_echo);
+        \draw[<->] (third_annotation_line -| start_reading_response) -- node[midway, below]{response} (third_annotation_line -| after_response_read);
+        % \draw (after_response_to_buffer) -- ++(0,-10);
+    \end{pgfonlayer}
+
+
+\end{tikztimingtable}
+
+\end{document}
