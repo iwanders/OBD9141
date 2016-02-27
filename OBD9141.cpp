@@ -179,8 +179,8 @@ bool OBD9141::init(){
         OBD9141println("Timeout on read v1.");
         return false;
     } else {
-        OBD9141print("read v1: "); OBD9141println(v1);
         v1 = buffer[0];
+        OBD9141print("read v1: "); OBD9141println(v1);
     }
 
     // read v2
@@ -188,8 +188,8 @@ bool OBD9141::init(){
         OBD9141println("Timeout on read v2.");
         return false;
     } else {
-        OBD9141print("read v2: "); OBD9141println(v2);
         v2 = buffer[0];
+        OBD9141print("read v2: "); OBD9141println(v2);
     }
     
     OBD9141print("v1: "); OBD9141println(v1);
