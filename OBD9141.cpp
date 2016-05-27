@@ -10,16 +10,22 @@ void OBD9141::begin(OBD_SERIAL_DATA_TYPE & serial_port, uint8_t rx_pin, uint8_t 
     this->serial = &serial_port;
     this->tx_pin = tx_pin;
     this->rx_pin = rx_pin;
+    this->set_port(true); // prevents calling this->serial->end() before start.
 }
 
 void OBD9141::set_port(bool enabled){
     if (enabled){
+        // In case the Tx pin is different from the serial port, put it back to
+        // floating. Also set Rx to input and make it a pullup.
+        pinMode(this->tx_pin, INPUT);
+        digitalWrite(this->tx_pin, HIGH);
+        pinMode(this->rx_pin, INPUT);
+        digitalWrite(this->rx_pin, HIGH);
         this->serial->begin(OBD9141_KLINE_BAUD);
     } else {
         this->serial->end();
         pinMode(this->tx_pin, OUTPUT);
         digitalWrite(this->tx_pin, HIGH);
-        pinMode(this->rx_pin, INPUT);
     }
 }
 
@@ -79,7 +85,7 @@ bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len){
         
         return (this->checksum(&(this->buffer[0]), ret_len) == this->buffer[ret_len]);// have data; return whether it is valid.
     } else {
-        OBD9141print("Timeout on reading bytes.");
+        OBD9141println("Timeout on reading bytes.");
         return false; // failed getting data.
     }
 }

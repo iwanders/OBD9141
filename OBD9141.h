@@ -8,7 +8,7 @@
 #include "Arduino.h"
 
 // to do some debug printing.
-//#define OBD9141_DEBUG
+// #define OBD9141_DEBUG
 
 //#define OBD9141_USE_ALTSOFTSERIAL
 // use AltSoftSerial.h instead of the hardware Serial
@@ -74,8 +74,13 @@
 
 
 #ifdef OBD9141_DEBUG
+  #ifdef ARDUINO_SAM_DUE
+    #define OBD9141print(a) SerialUSB.print(a);
+    #define OBD9141println(a) SerialUSB.println(a);
+  #else
     #define OBD9141print(a) Serial.print(a);
     #define OBD9141println(a) Serial.println(a);
+  #endif
 
 #else
     #define OBD9141print(a)
