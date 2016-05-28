@@ -10,20 +10,27 @@ void OBD9141::begin(OBD_SERIAL_DATA_TYPE & serial_port, uint8_t rx_pin, uint8_t 
     this->serial = &serial_port;
     this->tx_pin = tx_pin;
     this->rx_pin = rx_pin;
+
+    // Enable the pullup on the Rx Pin, this is not changed by set_port.
+    pinMode(this->rx_pin, INPUT);
+    digitalWrite(this->rx_pin, HIGH);
     this->set_port(true); // prevents calling this->serial->end() before start.
 }
 
 void OBD9141::set_port(bool enabled){
     if (enabled){
-        // In case the Tx pin is different from the serial port, put it back to
-        // floating. Also set Rx to input and make it a pullup.
-        pinMode(this->tx_pin, INPUT);
-        digitalWrite(this->tx_pin, HIGH);
-        pinMode(this->rx_pin, INPUT);
-        digitalWrite(this->rx_pin, HIGH);
+        // Work around the incorrect pinmode configuration in Due.
+        #ifdef ARDUINO_SAM_DUE
+          g_APinDescription[this->rx_pin].pPort -> PIO_PDR = g_APinDescription[this->rx_pin].ulPin;
+          g_APinDescription[this->tx_pin].pPort -> PIO_PDR = g_APinDescription[this->tx_pin].ulPin;
+        #endif
         this->serial->begin(OBD9141_KLINE_BAUD);
     } else {
         this->serial->end();
+        #ifdef ARDUINO_SAM_DUE
+          g_APinDescription[this->rx_pin].pPort -> PIO_PER = g_APinDescription[this->rx_pin].ulPin; 
+          g_APinDescription[this->tx_pin].pPort -> PIO_PER = g_APinDescription[this->tx_pin].ulPin; 
+        #endif
         pinMode(this->tx_pin, OUTPUT);
         digitalWrite(this->tx_pin, HIGH);
     }
