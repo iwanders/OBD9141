@@ -1,18 +1,6 @@
 #include "Arduino.h"
 #include "OBD9141.h"
 
-/*
-  On the Arduino DUE (version 1.6.8) using the Serial port pins as digital IO
-  pins is problematic. In particular, it seems you cannot use the port as a
-  serial port after using pinMode() on the pins.
-
-  We fix this by using an extra pin; we use this extra pin to create the slow
-  5 baud init pattern while the Serial pins remain in use for the serial port.
-
-  So connect any digital pin to the Tx pin of the serial port and update the 
-  number accordingly.
-*/
-
 // In this example, Serial port 'Serial1' is used. The native USB port is used
 // to provide information.
 
@@ -20,7 +8,7 @@
 #define RX_PIN 19
 
 // An extra pin connected to the Tx pin of the Serial port used. 
-#define TX_PIN 5
+#define TX_PIN 18
 // So this pin has a direct connection to pin 18 (TX1)
 
 // The ENable pin for my SN65HVDA195 breakout is connected to pin 2.
@@ -53,8 +41,8 @@ void loop(){
     // succesful before trying to request PID's.
 
     if (init_success){
-        bool res;
-        while(1){
+        bool res = true;
+        while(res){
             res = obd.getCurrentPID(0x11, 1);
             if (res){
                 SerialUSB.print("Result 0x11 (throttle): ");
