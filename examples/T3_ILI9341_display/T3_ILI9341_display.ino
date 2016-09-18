@@ -53,7 +53,7 @@ ILI9341_t3 tft = ILI9341_t3(TFT_CS, TFT_DC, TFT_RST, TFT_MOSI, TFT_SCLK, TFT_MIS
 OBD9141 obd;
 
 // Use random values to display.
-#define DEBUG 1
+// #define DEBUG 1
 
 // typedefs for the OBD entries.
 typedef struct{
@@ -137,6 +137,26 @@ void setup() {
 
 }
 
+
+/*
+  Velocity correction table measurements, for future improvement.
+
+  Dash  OBD     GPS
+  -----------------
+  120   107     113
+  120   108     113
+  80    71      74-75
+  80    71      74
+  70    62      64
+  100   90-91   94
+  100   90-91   93-96
+  100   90-91   93-94
+  70    62      64
+  130   117-118 122
+  130   118     122
+*/
+
+
 void loop(){
   tft.fillScreen(ILI9341_BLACK);
   tft.setCursor(0, 100);
@@ -158,7 +178,7 @@ void loop(){
     #ifndef DEBUG
     return;
     #endif
-    delay(3000);
+    delay(5000);
   }
   #ifdef DEBUG
     got_success = true;
