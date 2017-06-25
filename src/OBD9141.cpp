@@ -60,7 +60,7 @@ void OBD9141::write(uint8_t b){
 
 void OBD9141::write(void* b, uint8_t len){
     for (uint8_t i=0; i < len ; i++){
-        // OBD9141print("w: ");OBD9141println(reinterpret_cast<uint8_t*>(b)[i]);
+        OBD9141print("w: ");OBD9141println(reinterpret_cast<uint8_t*>(b)[i]);
         this->serial->write(reinterpret_cast<uint8_t*>(b)[i]);
         delay(OBD9141_INTERSYMBOL_WAIT);
     }
@@ -86,9 +86,10 @@ bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len){
     
     //OBD9141print("Trying to get x bytes: "); OBD9141println(ret_len+1);
     if (this->serial->readBytes(this->buffer, ret_len+1)){
-        // for (uint8_t i=0; i< (ret_len+1); i++){
-            // OBD9141print(this->buffer[i]);OBD9141print(" ");
-        // };OBD9141println();
+        OBD9141print("R: ");
+        for (uint8_t i=0; i< (ret_len+1); i++){
+            OBD9141print(this->buffer[i]);OBD9141print(" ");
+        };OBD9141println();
         
         return (this->checksum(&(this->buffer[0]), ret_len) == this->buffer[ret_len]);// have data; return whether it is valid.
     } else {
@@ -349,6 +350,37 @@ bool OBD9141::init(){
         }
     }
 }
+
+bool OBD9141::init_kwp_fast(){
+    // this function performs the KWP2000 fast init.
+    this->set_port(false); // disable the port.
+    this->kline(true); // set to up
+    delay(OBD9141_INIT_IDLE_BUS_BEFORE); // no traffic on bus for 3 seconds.
+    OBD9141println("Before 25 ms / 25 ms startup.");
+    this->kline(false); delay(25); // start with 25 ms low
+    this->kline(true); delay(25); // 25 ms high.
+
+    // immediately follow this by a startCommunicationRequest
+    OBD9141println("Enable port.");
+    this->set_port(true);
+
+    // startCommunicationRequest message:
+    uint8_t message[4] = {0xC1, 0x33, 0xF1, 0x81};
+    // checksum (0x66) is calculated by request method.
+
+    // Send this request and read 7(+1 = 8 bytes) response.
+    if (this->request(&message, 4, 7)) {
+        // check positive response service ID, should be 0xC1.
+        if (this->readUint8() == 0xC1) {
+            // Not necessary to do anything with this data?
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
 
 
 void OBD9141::decodeDTC(uint16_t input_bytes, uint8_t* output_string){

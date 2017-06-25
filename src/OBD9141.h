@@ -8,7 +8,7 @@
 #include "Arduino.h"
 
 // to do some debug printing.
-// #define OBD9141_DEBUG
+#define OBD9141_DEBUG
 
 //#define OBD9141_USE_ALTSOFTSERIAL
 // use AltSoftSerial.h instead of the hardware Serial
@@ -174,6 +174,7 @@ class OBD9141{
         // need to enable the port if we want to skip the init.
 
         bool init(); // attempts 'slow' ISO9141 5 baud init.
+        bool init_kwp_fast();  // attempts kwp2000 fast init.
         // returns whether the procedure was finished correctly.
         // The class keeps no track of whether this was successful or not.
         // It is up to the user to ensure that the initialisation is called.
