@@ -154,7 +154,10 @@ class OBD9141{
         // The class keeps no track of whether this was successful or not.
         // It is up to the user to ensure that the initialisation is called.
 
-
+        bool clearTroubleCodes();
+        // Attempts to Clear trouble codes / Malfunction indicator lamp (MIL)
+        // Check engine light.
+        // Returns whether the request was successful.
 
         static uint8_t checksum(void* b, uint8_t len); // public for sim.
 };

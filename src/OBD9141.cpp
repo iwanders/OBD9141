@@ -132,6 +132,17 @@ bool OBD9141::getCurrentPID(uint8_t pid, uint8_t return_length){
     return this->getPID(pid, 0x01, return_length);
 }
 
+bool OBD9141::clearTroubleCodes(){
+    uint8_t message[4] = {0x68, 0x6A, 0xF1, 0x04};
+    // 0x04 without PID value should clear the trouble codes or
+    // malfunction indicator lamp.
+
+    // No data is returned to this request, we expect the request itself
+    // to be returned.
+    bool res = this->request(&message, 4, 4);
+    return res;
+}
+
 uint8_t OBD9141::readUint8(){
     return this->buffer[5];
 }
