@@ -139,10 +139,33 @@ class OBD9141{
         // length was returned and if the checksum matches.
         // User needs to ensure that the ret_len never exceeds the buffer size.
 
+        /**
+         * @brief Send a request with a variable number of return bytes.
+         * @param request The pointer to read the address from.
+         * @param request_len the length of the request.
+         * @return the number of bytes read if checksum matches.
+         * @note If checksum doesn't match return will be zero, but bytes will
+         *       still be written to the internal buffer.
+         */
+        uint8_t request(void* request, uint8_t request_len);
 
+        // The following methods only work to read values from PID mode 0x01
         uint8_t readUint8(); // returns right part from the buffer as uint8_t
         uint16_t readUint16(); // idem...
         uint8_t readUint8(uint8_t index); // returns byte on index.
+
+        /**
+         * @brief This method allows raw access to the buffer, the return header
+         *        is 4 bytes, so data starts on index 4.
+         */
+        uint8_t readBuffer(uint8_t index);
+
+        /**
+         * @brief return the pointer to the trouble code in the buffer by index.
+         * @param index The index of the trouble code.
+         * @return point used by decodeDTC.
+         */
+        uint8_t* getTroubleCode(uint8_t index);
 
 
         void set_port(bool enabled);
@@ -159,7 +182,24 @@ class OBD9141{
         // Check engine light.
         // Returns whether the request was successful.
 
+        /**
+         * @brief attempts to read the diagnostic trouble codes using the
+         *        variable read method.
+         * @return The number of trouble codes read.
+         */
+        uint8_t readTroubleCodes();
+
         static uint8_t checksum(void* b, uint8_t len); // public for sim.
+
+        /**
+         * Decodes the two bytes at input_bytes into the diagnostic troublecode,
+         *  written in printable format to output_string.
+         * @param output_string Writes 5 bytes to this pointer representing the
+         *        human readable DTC string.
+         * @param input_bytes reads two bytes from this location.
+         */
+        static void decodeDTC(void* input_bytes, uint8_t* output_string);
+
 };
 
 
