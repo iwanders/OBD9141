@@ -131,8 +131,9 @@ uint8_t OBD9141::request(void* request, uint8_t request_len){
 #ifdef OBD9141_DEBUG
         OBD9141print(tmp[i]);OBD9141print(" ");
 #endif
-      // check if echo is what we wanted to send.
-      success &= (buf[i] == tmp[i]);
+      // check if echo is what we wanted to send
+      // This appeared to fail on the last byte in issue #9
+      // success &= (buf[i] == tmp[i]);
     }
 
     // so echo is dealt with now... next is listening to the reply, which is a variable number.
@@ -147,15 +148,16 @@ uint8_t OBD9141::request(void* request, uint8_t request_len){
       this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * 1);
     }
 
-    OBD9141println();OBD9141print("A: ");
+    OBD9141println();OBD9141print("A (");OBD9141print(answer_length);OBD9141print("): ");
 #ifdef OBD9141_DEBUG
-    for (uint8_t i=0; i < (answer_length); i++){
-        OBD9141print(his->buffer[i]);OBD9141print(" ");
+    for (uint8_t i=0; i < min(answer_length, OBD9141_BUFFER_SIZE); i++){
+        OBD9141print(this->buffer[i]);OBD9141print(" ");
     };OBD9141println();
 #endif
 
     // next, calculate the checksum
     bool checksum = (this->checksum(&(this->buffer[0]), answer_length-1) == this->buffer[answer_length]);
+    OBD9141println();OBD9141print("C: ");OBD9141println(checksum);
     if (checksum && success)
     {
       return answer_length - 1;
