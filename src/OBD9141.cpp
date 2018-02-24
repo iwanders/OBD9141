@@ -116,7 +116,7 @@ uint8_t OBD9141::request(void* request, uint8_t request_len){
     };OBD9141println();
 #endif
     for (uint8_t i=0; i < request_len+1 ; i++){
-        this->serial->write(reinterpret_cast<uint8_t*>(request)[i]);
+        this->serial->write(reinterpret_cast<uint8_t*>(buf)[i]);
         delay(OBD9141_INTERSYMBOL_WAIT);
     }
 
@@ -132,8 +132,7 @@ uint8_t OBD9141::request(void* request, uint8_t request_len){
         OBD9141print(tmp[i]);OBD9141print(" ");
 #endif
       // check if echo is what we wanted to send
-      // This appeared to fail on the last byte in issue #9
-      // success &= (buf[i] == tmp[i]);
+      success &= (buf[i] == tmp[i]);
     }
 
     // so echo is dealt with now... next is listening to the reply, which is a variable number.
