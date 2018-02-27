@@ -155,7 +155,7 @@ uint8_t OBD9141::request(void* request, uint8_t request_len){
 #endif
 
     // next, calculate the checksum
-    bool checksum = (this->checksum(&(this->buffer[0]), answer_length-1) == this->buffer[answer_length]);
+    bool checksum = (this->checksum(&(this->buffer[0]), answer_length-1) == this->buffer[answer_length - 1]);
     OBD9141println();OBD9141print("C: ");OBD9141println(checksum);
     if (checksum && success)
     {
