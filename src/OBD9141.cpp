@@ -156,7 +156,9 @@ uint8_t OBD9141::request(void* request, uint8_t request_len){
 
     // next, calculate the checksum
     bool checksum = (this->checksum(&(this->buffer[0]), answer_length-1) == this->buffer[answer_length - 1]);
-    OBD9141println();OBD9141print("C: ");OBD9141println(checksum);
+    OBD9141print("C: ");OBD9141println(checksum);
+    OBD9141print("S: ");OBD9141println(success);
+    OBD9141print("R: ");OBD9141println(answer_length - 1);
     if (checksum && success)
     {
       return answer_length - 1;
@@ -216,7 +218,8 @@ uint8_t OBD9141::readTroubleCodes()
   uint8_t response = this->request(&message, 4);
   if (response >= 4)
   {
-    return (response - 4) / 2.0;  // every DTC is 2 bytes.
+    OBD9141print("T: ");OBD9141println((response - 4) / 2);
+    return (response - 4) / 2;  // every DTC is 2 bytes.
   }
   return 0;
 }
