@@ -161,11 +161,12 @@ class OBD9141{
         uint8_t readBuffer(uint8_t index);
 
         /**
-         * @brief return the pointer to the trouble code in the buffer by index.
+         * @brief Obtain the two bytes representing the trouble code from the
+         *        buffer.
          * @param index The index of the trouble code.
-         * @return point used by decodeDTC.
+         * @return Two byte data to be used by decodeDTC.
          */
-        uint8_t* getTroubleCode(uint8_t index);
+        uint16_t getTroubleCode(uint8_t index);
 
 
         void set_port(bool enabled);
@@ -192,13 +193,13 @@ class OBD9141{
         static uint8_t checksum(void* b, uint8_t len); // public for sim.
 
         /**
-         * Decodes the two bytes at input_bytes into the diagnostic troublecode,
-         *  written in printable format to output_string.
+         *  Decodes the two bytes at input_bytes into the diagnostic trouble
+         *  code, written in printable format to output_string.
+         * @param input_bytes Two input bytes that represent the trouble code.
          * @param output_string Writes 5 bytes to this pointer representing the
          *        human readable DTC string.
-         * @param input_bytes reads two bytes from this location.
          */
-        static void decodeDTC(void* input_bytes, uint8_t* output_string);
+        static void decodeDTC(uint16_t input_bytes, uint8_t* output_string);
 
 };
 

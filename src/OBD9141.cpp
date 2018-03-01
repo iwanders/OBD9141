@@ -240,9 +240,9 @@ uint8_t OBD9141::readBuffer(uint8_t index){
   return this->buffer[index];
 }
 
-uint8_t* OBD9141::getTroubleCode(uint8_t index)
+uint16_t OBD9141::getTroubleCode(uint8_t index)
 {
-  return &(this->buffer[index*2 + 4]);
+  return *reinterpret_cast<uint16_t*>(&(this->buffer[index*2 + 4]));
 }
 
 bool OBD9141::init(){
@@ -339,9 +339,9 @@ bool OBD9141::init(){
 }
 
 
-void OBD9141::decodeDTC(void* input_bytes, uint8_t* output_string){
-  const uint8_t A = reinterpret_cast<uint8_t*>(input_bytes)[0];
-  const uint8_t B = reinterpret_cast<uint8_t*>(input_bytes)[1];
+void OBD9141::decodeDTC(uint16_t input_bytes, uint8_t* output_string){
+  const uint8_t A = reinterpret_cast<uint8_t*>(&input_bytes)[0];
+  const uint8_t B = reinterpret_cast<uint8_t*>(&input_bytes)[1];
   const static char type_lookup[4] = {'P', 'C', 'B', 'U'};
   const static char digit_lookup[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
