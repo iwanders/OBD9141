@@ -136,12 +136,12 @@ uint8_t OBD9141::request(void* request, uint8_t request_len){
     }
 
     // so echo is dealt with now... next is listening to the reply, which is a variable number.
-    // set the timeout for the first read.
+    // set the timeout for the first read to include the wait for answer timeout
     this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * 1 + OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT);
 
     uint8_t answer_length = 0;
     // while readBytes returns a byte, keep reading.
-    while (this->serial->readBytes(&(this->buffer[answer_length]), 1))
+    while (this->serial->readBytes(&(this->buffer[answer_length]), 1) && (answer_length < OBD9141_BUFFER_SIZE))
     {
       answer_length++;
       this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * 1);
@@ -218,8 +218,8 @@ uint8_t OBD9141::readTroubleCodes()
   uint8_t response = this->request(&message, 4);
   if (response >= 4)
   {
-    OBD9141print("T: ");OBD9141println((response - 4) / 2);
-    return (response - 4) / 2;  // every DTC is 2 bytes.
+    // OBD9141print("T: ");OBD9141println((response - 4) / 2);
+    return (response - 4) / 2;  // every DTC is 2 bytes, header was 4 bytes.
   }
   return 0;
 }

@@ -8,7 +8,7 @@
 #include "Arduino.h"
 
 // to do some debug printing.
-#define OBD9141_DEBUG
+// #define OBD9141_DEBUG
 
 //#define OBD9141_USE_ALTSOFTSERIAL
 // use AltSoftSerial.h instead of the hardware Serial
