@@ -56,11 +56,23 @@ void loop(){
                 Serial.println(" codes:");
                 for (uint8_t index = 0; index < res; index++)
                 {
-                  // convert the DTC bytes from the buffer into readable string
-                  OBD9141::decodeDTC(obd.getTroubleCode(index), dtc_buf);
-                  // Print the 5 readable ascii strings to the serial port.
-                  Serial.write(dtc_buf, 5);
-                  Serial.println();
+                  // retrieve the trouble code in its raw two byte value.
+                  uint16_t trouble_code = obd.getTroubleCode(index);
+
+                  // if it is equal to zero, it is not a real trouble code
+                  // but the ECU returned it, just print a dash.
+                  if (trouble_code == 0)
+                  {
+                    Serial.println(" - ");
+                  }
+                  else
+                  {
+                    // convert the DTC bytes from the buffer into readable string
+                    OBD9141::decodeDTC(trouble_code, dtc_buf);
+                    // Print the 5 readable ascii strings to the serial port.
+                    Serial.write(dtc_buf, 5);
+                    Serial.println();
+                  }
                 }
             }
             else
