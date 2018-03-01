@@ -39,11 +39,9 @@ The number of bytes to be received for each phase is known beforehand so the `re
 
 Trouble codes
 -------------
-The library now support to read diagnostic trouble codes from the ECU (the ones associated to the malfunction indicator light). This was made possible with extensive testing by [Produmann](https://github.com/produmann), under [issue #9](https://github.com/iwanders/OBD9141/issues/9).
+The library supports reading diagnostic trouble codes from the ECU (the ones associated to the malfunction indicator light). This was made possible with extensive testing by [Produmann](https://github.com/produmann), under [issue #9](https://github.com/iwanders/OBD9141/issues/9).
 
-When trouble codes are read from the ECU the length of the answer is not known beforehand. To accomodate this a method is implemented that handles a variable length request to the ECU, this can be slower than the fixed length one as it has to timeout after the response is finished.
-
-An example on how to read the diagnostic trouble codes is available, see [`readDTC`](examples/readDTC/readDTC.ino). Roughly it requires requesting the trouble codes, this request method returns the number of trouble codes returned. Each troublecode is encoded in two bytes, these can be retrieved and converted into the human readable trouble code with letter and 4 digits (for example `P0113`), which can then be printed to the serial port.
+Contrary to reading the normal OBD PID's, when trouble codes are read from the ECU the length of the answer is not known beforehand. To accomodate this a method is implemented that handles a variable length request to the ECU. In this variable length response, each trouble code is represented by two bytes. These two bytes can then be retrieved from the buffer and converted into a human readable trouble code with letter and 4 digits (for example `P0113`), which can then be printed to the serial port. An example on how to read the diagnostic trouble codes is available, see [`readDTC`](examples/readDTC/readDTC.ino). Increasing the buffer size `OBD9141_BUFFER_SIZE` in the header file may be necessary to accomodate the response from the ECU.
 
 License
 ------
