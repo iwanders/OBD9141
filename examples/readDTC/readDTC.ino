@@ -48,7 +48,10 @@ void loop(){
         uint8_t res;
         while(1){
             // res will hold the number of trouble codes that were received.
-            // if no diagnostic trouble codes were retrieved it will be zero.
+            // If no diagnostic trouble codes were retrieved it will be zero.
+            // The ECU may return trouble codes which decode to P0000, this is
+            // not a real trouble code but instead used to indicate the end of
+            // the trouble code list.
             res = obd.readTroubleCodes();
             if (res){
                 Serial.print("Read ");
@@ -59,11 +62,11 @@ void loop(){
                   // retrieve the trouble code in its raw two byte value.
                   uint16_t trouble_code = obd.getTroubleCode(index);
 
-                  // if it is equal to zero, it is not a real trouble code
-                  // but the ECU returned it, just print a dash.
+                  // If it is equal to zero, it is not a real trouble code
+                  // but the ECU returned it, print an explanation.
                   if (trouble_code == 0)
                   {
-                    Serial.println(" - ");
+                    Serial.println("P0000 (reached end of trouble codes)");
                   }
                   else
                   {
