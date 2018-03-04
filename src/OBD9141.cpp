@@ -97,6 +97,75 @@ bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len){
     }
 }
 
+uint8_t OBD9141::request(void* request, uint8_t request_len){
+    bool success = true;
+    // wipe the entire buffer to ensure we are in a clean slate.
+    memset(this->buffer, 0, OBD9141_BUFFER_SIZE);
+
+    // create the request with checksum.
+    uint8_t buf[request_len+1];
+    memcpy(buf, request, request_len); // copy request
+    buf[request_len] = this->checksum(&buf, request_len); // add the checksum
+
+    // manually write the bytes onto the serial port
+    // this does NOT read the echoes.
+    OBD9141print("W: ");
+#ifdef OBD9141_DEBUG
+    for (uint8_t i=0; i < (request_len+1); i++){
+        OBD9141print(buf[i]);OBD9141print(" ");
+    };OBD9141println();
+#endif
+    for (uint8_t i=0; i < request_len+1 ; i++){
+        this->serial->write(reinterpret_cast<uint8_t*>(buf)[i]);
+        delay(OBD9141_INTERSYMBOL_WAIT);
+    }
+
+    // next step, is to read the echo from the serial port.
+    this->serial->setTimeout(OBD9141_REQUEST_ECHO_MS_PER_BYTE * 1 + OBD9141_WAIT_FOR_ECHO_TIMEOUT);
+    uint8_t tmp[request_len+1]; // temporary variable to read into.
+    this->serial->readBytes(tmp, request_len+1);
+
+    OBD9141print("E: ");
+    for (uint8_t i=0; i < request_len+1; i++)
+    {
+#ifdef OBD9141_DEBUG
+        OBD9141print(tmp[i]);OBD9141print(" ");
+#endif
+      // check if echo is what we wanted to send
+      success &= (buf[i] == tmp[i]);
+    }
+
+    // so echo is dealt with now... next is listening to the reply, which is a variable number.
+    // set the timeout for the first read to include the wait for answer timeout
+    this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * 1 + OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT);
+
+    uint8_t answer_length = 0;
+    // while readBytes returns a byte, keep reading.
+    while (this->serial->readBytes(&(this->buffer[answer_length]), 1) && (answer_length < OBD9141_BUFFER_SIZE))
+    {
+      answer_length++;
+      this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * 1);
+    }
+
+    OBD9141println();OBD9141print("A (");OBD9141print(answer_length);OBD9141print("): ");
+#ifdef OBD9141_DEBUG
+    for (uint8_t i=0; i < min(answer_length, OBD9141_BUFFER_SIZE); i++){
+        OBD9141print(this->buffer[i]);OBD9141print(" ");
+    };OBD9141println();
+#endif
+
+    // next, calculate the checksum
+    bool checksum = (this->checksum(&(this->buffer[0]), answer_length-1) == this->buffer[answer_length - 1]);
+    OBD9141print("C: ");OBD9141println(checksum);
+    OBD9141print("S: ");OBD9141println(success);
+    OBD9141print("R: ");OBD9141println(answer_length - 1);
+    if (checksum && success)
+    {
+      return answer_length - 1;
+    }
+    return 0;
+}
+
 /*
     No header description to be found on the internet?
 
@@ -143,6 +212,30 @@ bool OBD9141::clearTroubleCodes(){
     return res;
 }
 
+uint8_t OBD9141::readTroubleCodes()
+{
+  uint8_t message[4] = {0x68, 0x6A, 0xF1, 0x03};
+  uint8_t response = this->request(&message, 4);
+  if (response >= 4)
+  {
+    // OBD9141print("T: ");OBD9141println((response - 4) / 2);
+    return (response - 4) / 2;  // every DTC is 2 bytes, header was 4 bytes.
+  }
+  return 0;
+}
+
+uint8_t OBD9141::readPendingTroubleCodes()
+{
+  uint8_t message[4] = {0x68, 0x6A, 0xF1, 0x07};
+  uint8_t response = this->request(&message, 4);
+  if (response >= 4)
+  {
+    // OBD9141print("T: ");OBD9141println((response - 4) / 2);
+    return (response - 4) / 2;  // every DTC is 2 bytes, header was 4 bytes.
+  }
+  return 0;
+}
+
 uint8_t OBD9141::readUint8(){
     return this->buffer[5];
 }
@@ -153,6 +246,15 @@ uint16_t OBD9141::readUint16(){
 
 uint8_t OBD9141::readUint8(uint8_t index){
     return this->buffer[5 + index];
+}
+
+uint8_t OBD9141::readBuffer(uint8_t index){
+  return this->buffer[index];
+}
+
+uint16_t OBD9141::getTroubleCode(uint8_t index)
+{
+  return *reinterpret_cast<uint16_t*>(&(this->buffer[index*2 + 4]));
 }
 
 bool OBD9141::init(){
@@ -249,3 +351,20 @@ bool OBD9141::init(){
 }
 
 
+void OBD9141::decodeDTC(uint16_t input_bytes, uint8_t* output_string){
+  const uint8_t A = reinterpret_cast<uint8_t*>(&input_bytes)[0];
+  const uint8_t B = reinterpret_cast<uint8_t*>(&input_bytes)[1];
+  const static char type_lookup[4] = {'P', 'C', 'B', 'U'};
+  const static char digit_lookup[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+  // A7-A6 is first dtc character, error type:
+  output_string[0] = type_lookup[A >> 6];
+  // A5-A4 is second dtc character
+  output_string[1] = digit_lookup[(A >> 4) & 0b11];
+  // A3-A0 is third dtc character.
+  output_string[2] = digit_lookup[A & 0b1111];
+  // B7-B4 is fourth dtc character
+  output_string[3] = digit_lookup[B >> 4];
+  // B3-B0 is fifth dtc character
+  output_string[4] = digit_lookup[B & 0b1111];
+}

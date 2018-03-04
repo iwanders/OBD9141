@@ -23,7 +23,7 @@ In the logic folder are some recordings made with a [Saleae logic analyzer][sale
 Three examples are given in the example folder. The `reader` and `simulator` examples are to be used with a hardware serial port. The `reader_softserial` example shows how to use it with the [AltSoftSerial][altsoftserial] library. For more information on how to use the library, refer to to the header files.
 
 Timing
------
+------
 Several parameters related to timing are given by the specification, some others are beyond our influence. To understand how a request works, lets consider the case the `0x0D` PID is requested, this represents the vehicle's speed.
 ![Timing diagram of a request](/../master/extras/timing_diagram/timing_diagram.png?raw=true "Timing diagram of a request")
 
@@ -36,6 +36,14 @@ The transceiver IC puts the waveform seen on the Tx line on the K-line. However,
 After the echo has been read, the waiting game begins as we wait for the ECU to answer. According to the specification this is atleast 30 milliseconds, this duration (which is the major part of a request duration) is something that cannot be influenced. The timeout set to read the response is given by (`REQUEST_ANSWER_MS_PER_BYTE` * ret_len +  `WAIT_FOR_REQUEST_ANSWER_TIMEOUT`) milliseconds, ret_len represents the number of bytes expected from the ECU. Because this number is known beforehand the `readBytes` method can be used. According to the specification the ECU should also pause between sending the bytes, but this is not necessarily the case.
 
 The number of bytes to be received for each phase is known beforehand so the `readBytes` method can be used; it ensures that we stop reading immediately after the expected amount has been read. The main impact on the performance is given by the time the ECU takes to send a response and the `INTERSYMBOL_WAIT` between the bytes sent on the bus. There is no delay parameter for the minimum duration between two requests, that is up to the user.
+
+Trouble codes
+-------------
+The library supports reading diagnostic trouble codes from the ECU (the ones associated to the malfunction indicator light). This was made possible with extensive testing by [Produmann](https://github.com/produmann), under [issue #9](https://github.com/iwanders/OBD9141/issues/9).
+
+Contrary to reading the normal OBD PID's, when trouble codes are read from the ECU the length of the answer is not known beforehand. To accomodate this a method is implemented that handles a variable length request to the ECU. In this variable length response, each trouble code is represented by two bytes. These two bytes can then be retrieved from the buffer and converted into a human readable trouble code with letter and 4 digits (for example `P0113`), which can then be printed to the serial port. An example on how to read the diagnostic trouble codes is available, see [`readDTC`](examples/readDTC/readDTC.ino). Increasing the buffer size `OBD9141_BUFFER_SIZE` in the header file may be necessary to accomodate the response from the ECU.
+
+The following trouble-code related modes are supported: Reading stored trouble codes (mode `0x03`), clearing trouble codes (mode `0x04`) and reading pending trouble codes (mode `0x07`).
 
 License
 ------
