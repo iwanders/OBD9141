@@ -43,6 +43,8 @@ The library supports reading diagnostic trouble codes from the ECU (the ones ass
 
 Contrary to reading the normal OBD PID's, when trouble codes are read from the ECU the length of the answer is not known beforehand. To accomodate this a method is implemented that handles a variable length request to the ECU. In this variable length response, each trouble code is represented by two bytes. These two bytes can then be retrieved from the buffer and converted into a human readable trouble code with letter and 4 digits (for example `P0113`), which can then be printed to the serial port. An example on how to read the diagnostic trouble codes is available, see [`readDTC`](examples/readDTC/readDTC.ino). Increasing the buffer size `OBD9141_BUFFER_SIZE` in the header file may be necessary to accomodate the response from the ECU.
 
+The following trouble-code related modes are supported: Reading stored trouble codes (mode `0x03`), clearing trouble codes (mode `0x04`) and reading pending trouble codes (mode `0x07`).
+
 License
 ------
 MIT License, see LICENSE.md.
