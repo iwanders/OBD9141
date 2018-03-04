@@ -189,6 +189,7 @@ class OBD9141{
          * @return The number of trouble codes read.
          */
         uint8_t readTroubleCodes();
+        uint8_t readPendingTroubleCodes();
 
         static uint8_t checksum(void* b, uint8_t len); // public for sim.
 

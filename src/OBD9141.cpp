@@ -224,6 +224,18 @@ uint8_t OBD9141::readTroubleCodes()
   return 0;
 }
 
+uint8_t OBD9141::readPendingTroubleCodes()
+{
+  uint8_t message[4] = {0x68, 0x6A, 0xF1, 0x07};
+  uint8_t response = this->request(&message, 4);
+  if (response >= 4)
+  {
+    // OBD9141print("T: ");OBD9141println((response - 4) / 2);
+    return (response - 4) / 2;  // every DTC is 2 bytes, header was 4 bytes.
+  }
+  return 0;
+}
+
 uint8_t OBD9141::readUint8(){
     return this->buffer[5];
 }
