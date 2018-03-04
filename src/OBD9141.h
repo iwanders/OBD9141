@@ -184,12 +184,12 @@ class OBD9141{
         // Returns whether the request was successful.
 
         /**
-         * @brief attempts to read the diagnostic trouble codes using the
+         * @brief Attempts to read the diagnostic trouble codes using the
          *        variable read method.
          * @return The number of trouble codes read.
          */
-        uint8_t readTroubleCodes();
-        uint8_t readPendingTroubleCodes();
+        uint8_t readTroubleCodes();   // mode 0x03, stored codes
+        uint8_t readPendingTroubleCodes();  // mode 0x07, pending codes
 
         static uint8_t checksum(void* b, uint8_t len); // public for sim.
 
