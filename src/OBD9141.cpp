@@ -167,6 +167,54 @@ uint8_t OBD9141::request(void* request, uint8_t request_len){
     return 0;
 }
 
+uint8_t OBD9141::requestKWP(void* request, uint8_t request_len){
+    uint8_t buf[request_len+1];
+    memcpy(buf, request, request_len); // copy request
+
+    buf[request_len] = this->checksum(&buf, request_len); // add the checksum
+
+    this->write(&buf, request_len+1);
+
+    // wait after the request, officially 30 ms, but we might as well wait
+    // for the data in the readBytes function.
+    
+    // set proper timeout
+    this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * 1 + OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT);
+    memset(this->buffer, 0, OBD9141_BUFFER_SIZE);
+
+    // Example response: 131 241 17 193 239 143 196 0 
+    // Try to read the fmt byte.
+    if (!(this->serial->readBytes(this->buffer, 1)))
+    {
+      return 0; // failed reading the response byte.
+    }
+
+    const uint8_t msg_len = (this->buffer[0]) & 0b111111;
+    // If length is zero, there is a length byte at the end of the header.
+    // This is likely very rare, we do not handle this for now.
+
+    // This means that we should now read the 2 addressing bytes, the payload
+    // and the checksum byte.
+    const uint8_t remainder = msg_len + 2 + 1;
+    const uint8_t ret_len = remainder + 1;
+    this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * remainder + OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT);
+
+    //OBD9141print("Trying to get x bytes: "); OBD9141println(ret_len+1);
+    if (this->serial->readBytes(&(this->buffer[1]), remainder)){
+        OBD9141print("R: ");
+        for (uint8_t i=0; i< (ret_len+1); i++){
+            OBD9141print(this->buffer[i]);OBD9141print(" ");
+        };OBD9141println();
+  
+        if (this->checksum(&(this->buffer[0]), ret_len) == this->buffer[ret_len])
+        {
+          return ret_len; // have data; return whether it is valid.
+        }
+    } else {
+        OBD9141println("Timeout on reading bytes.");
+        return 0; // failed getting data.
+    }
+}
 /*
     No header description to be found on the internet?
 
@@ -351,7 +399,7 @@ bool OBD9141::init(){
     }
 }
 
-bool OBD9141::init_kwp_fast(){
+bool OBD9141::initKWP(){
     // this function performs the KWP2000 fast init.
     this->set_port(false); // disable the port.
     this->kline(true); // set to up
@@ -368,10 +416,10 @@ bool OBD9141::init_kwp_fast(){
     uint8_t message[4] = {0xC1, 0x33, 0xF1, 0x81};
     // checksum (0x66) is calculated by request method.
 
-    // Send this request and read 7(+1 = 8 bytes) response.
-    if (this->request(&message, 4, 7)) {
+    // Send this request and read the response
+    if (this->requestKWP(&message, 4) == 7) {
         // check positive response service ID, should be 0xC1.
-        if (this->readUint8() == 0xC1) {
+        if (this->buffer[3] == 0xC1) {
             // Not necessary to do anything with this data?
             return true;
         } else {

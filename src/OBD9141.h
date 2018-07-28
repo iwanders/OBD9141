@@ -115,7 +115,6 @@ class OBD9141{
 
         uint8_t buffer[OBD9141_BUFFER_SIZE]; // internal buffer.
 
-
     public:
         OBD9141();
 
@@ -149,6 +148,16 @@ class OBD9141{
          */
         uint8_t request(void* request, uint8_t request_len);
 
+        /**
+         * @brief Send a request and read return bytes according to KWP protocol
+         * @param request The pointer to read the address from.
+         * @param request_len the length of the request.
+         * @return the number of bytes read if checksum matches.
+         * @note If checksum doesn't match return will be zero, but bytes will
+         *       still be written to the internal buffer.
+         */
+        uint8_t requestKWP(void* request, uint8_t request_len);
+
         // The following methods only work to read values from PID mode 0x01
         uint8_t readUint8(); // returns right part from the buffer as uint8_t
         uint16_t readUint16(); // idem...
@@ -174,7 +183,7 @@ class OBD9141{
         // need to enable the port if we want to skip the init.
 
         bool init(); // attempts 'slow' ISO9141 5 baud init.
-        bool init_kwp_fast();  // attempts kwp2000 fast init.
+        bool initKWP();  // attempts kwp2000 fast init.
         // returns whether the procedure was finished correctly.
         // The class keeps no track of whether this was successful or not.
         // It is up to the user to ensure that the initialisation is called.
