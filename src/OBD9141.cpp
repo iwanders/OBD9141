@@ -210,9 +210,9 @@ uint8_t OBD9141::requestKWP(void* request, uint8_t request_len){
   
         const uint8_t calc_checksum = this->checksum(&(this->buffer[0]), ret_len - 1);
         OBD9141print("calc cs: ");OBD9141println(calc_checksum);
-        OBD9141print("buf cs: ");OBD9141println(this->buffer[ret_len]);
+        OBD9141print("buf cs: ");OBD9141println(this->buffer[ret_len - 1]);
         
-        if (calc_checksum == this->buffer[ret_len])
+        if (calc_checksum == this->buffer[ret_len - 1])
         {
           return ret_len; // have data; return whether it is valid.
         }
