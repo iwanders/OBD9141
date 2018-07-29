@@ -27,6 +27,7 @@ void loop(){
     bool init_success =  obd.initKWP();
     Serial.print("init_success:");
     Serial.println(init_success);
+    delay(50);
 
     //init_success = true;
     // Uncomment this line if you use the simulator to force the init to be
@@ -41,12 +42,14 @@ void loop(){
                 Serial.print("Result 0x11 (throttle): ");
                 Serial.println(obd.readUint8());
             }
+            delay(50);
             
             res = obd.getCurrentPID(0x0C, 2);
             if (res){
                 Serial.print("Result 0x0C (RPM): ");
                 Serial.println(obd.readUint16()/4);
             }
+            delay(50);
 
 
             res = obd.getCurrentPID(0x0D, 1);

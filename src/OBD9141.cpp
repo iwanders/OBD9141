@@ -225,7 +225,7 @@ uint8_t OBD9141::requestKWP(void* request, uint8_t request_len){
     OBD9141print("Rem: ");OBD9141println(remainder);
     const uint8_t ret_len = remainder + 1;
     OBD9141print("ret_len: ");OBD9141println(ret_len);
-    this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * remainder + OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT);
+    this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * (remainder + 1));
 
     //OBD9141print("Trying to get x bytes: "); OBD9141println(ret_len+1);
     if (this->serial->readBytes(&(this->buffer[1]), remainder)){
