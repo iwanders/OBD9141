@@ -117,8 +117,13 @@ bool OBD9141::request9141(void* request, uint8_t request_len, uint8_t ret_len){
 uint8_t OBD9141::request(void* request, uint8_t request_len){
     if (use_kwp_)
     {
-        // kwp request is always variable length.
-        return requestKWP(request, request_len);
+        // have to modify the first bytes.
+        uint8_t rbuf[request_len];
+        memcpy(rbuf, request, request_len);
+        // now we modify the header, the payload is the request_len - 3 header bytes
+        rbuf[0] = (0b11<<6) | (request_len - 3);
+        rbuf[1] = 0x33;  // second byte should be 0x33
+        return requestKWP(rbuf, request_len);
     }
     bool success = true;
     // wipe the entire buffer to ensure we are in a clean slate.
