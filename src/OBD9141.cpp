@@ -15,6 +15,7 @@ void OBD9141::begin(OBD_SERIAL_DATA_TYPE & serial_port, uint8_t rx_pin, uint8_t 
     pinMode(this->rx_pin, INPUT);
     digitalWrite(this->rx_pin, HIGH);
     this->set_port(true); // prevents calling this->serial->end() before start.
+    use_kwp_ = false;
 }
 
 void OBD9141::set_port(bool enabled){
@@ -69,7 +70,22 @@ void OBD9141::write(void* b, uint8_t len){
     this->serial->readBytes(tmp, len);
 }
 
-bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len){
+bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len)
+{
+  if (use_kwp_)
+  {
+    // have to modify the first bytes.
+    uint8_t rbuf[request_len];
+    memcpy(rbuf, request, request_len);
+    // now we modify the header, the payload is the request_len - 3 header bytes
+    rbuf[0] = (0b11<<6) | (request_len - 3);
+    rbuf[1] = 0x33;  // second byte should be 0x33
+    return (this->requestKWP(&rbuf, request_len) == ret_len);
+  }
+  return request9141(request, request_len, ret_len);
+}
+
+bool OBD9141::request9141(void* request, uint8_t request_len, uint8_t ret_len){
     uint8_t buf[request_len+1];
     memcpy(buf, request, request_len); // copy request
 
@@ -99,6 +115,11 @@ bool OBD9141::request(void* request, uint8_t request_len, uint8_t ret_len){
 }
 
 uint8_t OBD9141::request(void* request, uint8_t request_len){
+    if (use_kwp_)
+    {
+        // kwp request is always variable length.
+        return requestKWP(request, request_len);
+    }
     bool success = true;
     // wipe the entire buffer to ensure we are in a clean slate.
     memset(this->buffer, 0, OBD9141_BUFFER_SIZE);
@@ -220,22 +241,32 @@ uint8_t OBD9141::requestKWP(void* request, uint8_t request_len){
         OBD9141println("Timeout on reading bytes.");
         return 0; // failed getting data.
     }
+    return 0;
 }
 /*
     No header description to be found on the internet?
 
-    raw request: {0x68, 0x6A, 0xF1, 0x01, 0x0D}
-        returns:  0x48  0x6B  0x11  0x41  0x0D  0x00  0x12 
-        returns 1 byte
-        total of 7 bytes.
+    for 9141-2:
+      raw request: {0x68, 0x6A, 0xF1, 0x01, 0x0D}
+          returns:  0x48  0x6B  0x11  0x41  0x0D  0x00  0x12 
+          returns 1 byte
+          total of 7 bytes.
 
-    raw request: {0x68, 0x6A, 0xF1, 0x01, 0x00}
-        returns   0x48  0x6B  0x11  0x41  0x00  0xBE  0x3E  0xB8  0x11  0xCA
-        returns 3 bytes
-        total of 10 bytes
+      raw request: {0x68, 0x6A, 0xF1, 0x01, 0x00}
+          returns   0x48  0x6B  0x11  0x41  0x00  0xBE  0x3E  0xB8  0x11  0xCA
+          returns 3 bytes
+          total of 10 bytes
 
-    Mode seems to be 0x40 + mode, unable to confirm this though.
+      Mode seems to be 0x40 + mode, unable to confirm this though.
 
+    for ISO 14230 KWP:
+      First byte lower 6 bits are length, first two bits always 0b11?
+
+      raw request: {0xc2, 0x33, 0xf1, 0x01, 0x0d, 0xf4}
+      returns       0x83  0xf1  0x11  0x41  0xd  0x0  0xd3
+
+      raw request: {0xc2, 0x33, 0xf1, 0x01, 0x0c, 0xf3}
+      returns       0x84, 0xf1, 0x11, 0x41, 0x0c, 0x0c, 0x4c, 0x2b, 0xf3
 */
 
 
@@ -313,6 +344,7 @@ uint16_t OBD9141::getTroubleCode(uint8_t index)
 }
 
 bool OBD9141::init(){
+    use_kwp_ = false;
     // this function performs the ISO9141 5-baud 'slow' init.
     this->set_port(false); // disable the port.
     this->kline(true);
@@ -406,6 +438,7 @@ bool OBD9141::init(){
 }
 
 bool OBD9141::initKWP(){
+    use_kwp_ = true;
     // this function performs the KWP2000 fast init.
     this->set_port(false); // disable the port.
     this->kline(true); // set to up

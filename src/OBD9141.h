@@ -115,6 +115,7 @@ class OBD9141{
 
         uint8_t buffer[OBD9141_BUFFER_SIZE]; // internal buffer.
 
+        bool use_kwp_;
     public:
         OBD9141();
 
@@ -131,12 +132,22 @@ class OBD9141{
         // Sends a request containing {0x68, 0x6A, 0xF1, mode, pid}
         // Returns whether the request was answered with a correct answer
         // (correct PID and checksum)
-        
+
+        /**
+         * @brief Send a request to the ECU, includes header bytes. For KWP the
+         *        first two header bytes will be corrected before transmission.
+         * @param request Pointer to the request bytes.
+         * @param request_len The number of bytes that make up the request.
+         * @param ret_len The expected return length.
+         *
+         * Sends buffer at request, up to request_len, adds a checksum.
+         * Needs to know the returned number of bytes, checks if the appropiate
+         * length was returned and if the checksum matches.
+         * User needs to ensure that the ret_len never exceeds the buffer size.
+         * if initKWP has been called, the requestKWP will be called.
+         */
         bool request(void* request, uint8_t request_len, uint8_t ret_len);
-        // Sends buffer at request, up to request_len, adds a checksum.
-        // Needs to know the returned number of bytes, checks if the appropiate
-        // length was returned and if the checksum matches.
-        // User needs to ensure that the ret_len never exceeds the buffer size.
+        bool request9141(void* request, uint8_t request_len, uint8_t ret_len);
 
         /**
          * @brief Send a request with a variable number of return bytes.
