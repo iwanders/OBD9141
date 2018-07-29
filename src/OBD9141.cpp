@@ -196,7 +196,9 @@ uint8_t OBD9141::requestKWP(void* request, uint8_t request_len){
     // This means that we should now read the 2 addressing bytes, the payload
     // and the checksum byte.
     const uint8_t remainder = msg_len + 2 + 1;
+    OBD9141print("Rem: ");OBD9141println(remainder);
     const uint8_t ret_len = remainder + 1;
+    OBD9141print("ret_len: ");OBD9141println(ret_len);
     this->serial->setTimeout(OBD9141_REQUEST_ANSWER_MS_PER_BYTE * remainder + OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT);
 
     //OBD9141print("Trying to get x bytes: "); OBD9141println(ret_len+1);
@@ -206,7 +208,11 @@ uint8_t OBD9141::requestKWP(void* request, uint8_t request_len){
             OBD9141print(this->buffer[i]);OBD9141print(" ");
         };OBD9141println();
   
-        if (this->checksum(&(this->buffer[0]), ret_len) == this->buffer[ret_len])
+        const uint8_t calc_checksum = this->checksum(&(this->buffer[0]), ret_len - 1);
+        OBD9141print("calc cs: ");OBD9141println(calc_checksum);
+        OBD9141print("buf cs: ");OBD9141println(this->buffer[ret_len]);
+        
+        if (calc_checksum == this->buffer[ret_len])
         {
           return ret_len; // have data; return whether it is valid.
         }
