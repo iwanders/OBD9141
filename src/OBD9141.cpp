@@ -240,7 +240,7 @@ uint8_t OBD9141::requestKWP(void* request, uint8_t request_len){
         
         if (calc_checksum == this->buffer[ret_len - 1])
         {
-          return ret_len; // have data; return whether it is valid.
+          return ret_len - 1; // have data; return whether it is valid.
         }
     } else {
         OBD9141println("Timeout on reading bytes.");
@@ -461,7 +461,7 @@ bool OBD9141::initKWP(){
     // checksum (0x66) is calculated by request method.
 
     // Send this request and read the response
-    if (this->requestKWP(&message, 4) == 7) {
+    if (this->requestKWP(&message, 4) == 6) {
         // check positive response service ID, should be 0xC1.
         if (this->buffer[3] == 0xC1) {
             // Not necessary to do anything with this data?
