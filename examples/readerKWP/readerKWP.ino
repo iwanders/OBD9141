@@ -58,6 +58,7 @@ void loop(){
 
             delay(200);
         }
+        delay(200);
     }
     delay(3000);
 }
