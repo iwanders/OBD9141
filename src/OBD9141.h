@@ -8,7 +8,7 @@
 #include "Arduino.h"
 
 // to do some debug printing.
-#define OBD9141_DEBUG
+// #define OBD9141_DEBUG
 
 //#define OBD9141_USE_ALTSOFTSERIAL
 // use AltSoftSerial.h instead of the hardware Serial
@@ -57,7 +57,7 @@
 // The ECU might not push all bytes on the bus immediately, but wait several ms
 // between the bytes, this is the time allowed per byte for the answer
 
-#define OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT (30 + 10)
+#define OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT (30 + 20)
 // Time added to the read timeout when reading the response to a request. 
 // This should incorporate the 30 ms that's between the request and answer
 // according to the specification.
