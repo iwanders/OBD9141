@@ -61,7 +61,7 @@ void OBD9141::write(uint8_t b){
 
 void OBD9141::write(void* b, uint8_t len){
     for (uint8_t i=0; i < len ; i++){
-        OBD9141print("w: ");OBD9141println(reinterpret_cast<uint8_t*>(b)[i]);
+        // OBD9141print("w: ");OBD9141println(reinterpret_cast<uint8_t*>(b)[i]);
         this->serial->write(reinterpret_cast<uint8_t*>(b)[i]);
         delay(OBD9141_INTERSYMBOL_WAIT);
     }
@@ -102,10 +102,10 @@ bool OBD9141::request9141(void* request, uint8_t request_len, uint8_t ret_len){
     
     //OBD9141print("Trying to get x bytes: "); OBD9141println(ret_len+1);
     if (this->serial->readBytes(this->buffer, ret_len+1)){
-        OBD9141print("R: ");
-        for (uint8_t i=0; i< (ret_len+1); i++){
-            OBD9141print(this->buffer[i]);OBD9141print(" ");
-        };OBD9141println();
+        // OBD9141print("R: ");
+        // for (uint8_t i=0; i< (ret_len+1); i++){
+            // OBD9141print(this->buffer[i]);OBD9141print(" ");
+        // };OBD9141println();
         
         return (this->checksum(&(this->buffer[0]), ret_len) == this->buffer[ret_len]);// have data; return whether it is valid.
     } else {
@@ -472,8 +472,6 @@ bool OBD9141::initKWP(){
     }
     return false;
 }
-
-
 
 void OBD9141::decodeDTC(uint16_t input_bytes, uint8_t* output_string){
   const uint8_t A = reinterpret_cast<uint8_t*>(&input_bytes)[0];
