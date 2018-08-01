@@ -1,7 +1,7 @@
 OBD9141
-======
+=======
 
-This is a library to read data from the the ISO 9141-2 (K-line) pin of an [OBD-II][obd2] port found in cars.
+This is a library to read data from the [OBD-II][obd2] port through the K-line pin using either ISO 9141-2 or ISO 14230-2 (KWP).
 
 There are numerous projects which read data from the diagnostic port and display or record this. However, I found that most of these projects either use an ELM327 chip or the communication code is interwoven with the rest of the program. This makes it hard to extract the communication parts for use in another project.
 
@@ -11,7 +11,7 @@ Usage
 --------
 The code has been developed using [Teensy 3][teensy31], the K-line transceiver IC's used were during the development were the [MC33290][mc33290], [SN65HVDA100][SN65HVDA100] and [SN65HVDA195][SN65HVDA195]. All three transceiver IC's worked without problems when the typical application circuit from the datasheet was used. The OBD9141 class itself has been tested on one Kia car build in 2004.
 
-For the Teensy 3.x or LC versions it is recommended to use one of the HardwareSerial ports. For use with Arduino the [AltSoftSerial][altsoftserial] library is used by default. The example `reader_softserial` was tested with an Arduino UNO.
+For the Teensy 3.x or LC versions it is recommended to use one of the HardwareSerial ports. For use with Arduino the [AltSoftSerial][altsoftserial] library is used by default. The example `reader_softserial` was tested with an Arduino UNO. The KWP functionality of this library was verified to work on a Teensy 3.5.
 
 A minimal example of how to use the SN65HVDA195 chip mentioned is given by the following schematic:
 ![Schematic of circuit using SN65HVDA195](/../master/extras/OBD9141_reader/img/OBD9141_reader_cutout.png?raw=true "Schematic of circuit using SN65HVDA195")
@@ -45,6 +45,10 @@ Contrary to reading the normal OBD PID's, when trouble codes are read from the E
 
 The following trouble-code related modes are supported: Reading stored trouble codes (mode `0x03`), clearing trouble codes (mode `0x04`) and reading pending trouble codes (mode `0x07`).
 
+ISO 14230-2 (KWP)
+-----------------
+The [ISO 14230-2][KWP] protocol uses the same physical layer as 9141-2, the support for this protocol was developed under [issue #11](https://github.com/iwanders/OBD9141/issues/11). If `initKWP()` is called instead of `init()` the KWP protocol is used for all requests onward. The provided functionality should be the same regardless of the protocol used. A sketch that just tests the KWP functionality is available [`readerKWP`](examples/readerKWP/readerKWP.ino).
+
 License
 ------
 MIT License, see LICENSE.md.
@@ -59,3 +63,4 @@ Copyright (c) 2015 Ivor Wanders
 [SN65HVDA100]:http://www.ti.com/product/sn65hvda100-q1
 [saleae]:https://www.saleae.com/
 [altsoftserial]:https://www.pjrc.com/teensy/td_libs_AltSoftSerial.html
+[KWP]:https://en.wikipedia.org/wiki/Keyword_Protocol_2000
