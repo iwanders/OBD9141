@@ -57,7 +57,7 @@
 // The ECU might not push all bytes on the bus immediately, but wait several ms
 // between the bytes, this is the time allowed per byte for the answer
 
-#define OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT (30 + 10)
+#define OBD9141_WAIT_FOR_REQUEST_ANSWER_TIMEOUT (30 + 20)
 // Time added to the read timeout when reading the response to a request. 
 // This should incorporate the 30 ms that's between the request and answer
 // according to the specification.
@@ -115,7 +115,7 @@ class OBD9141{
 
         uint8_t buffer[OBD9141_BUFFER_SIZE]; // internal buffer.
 
-
+        bool use_kwp_;
     public:
         OBD9141();
 
@@ -132,12 +132,22 @@ class OBD9141{
         // Sends a request containing {0x68, 0x6A, 0xF1, mode, pid}
         // Returns whether the request was answered with a correct answer
         // (correct PID and checksum)
-        
+
+        /**
+         * @brief Send a request to the ECU, includes header bytes. For KWP the
+         *        first two header bytes will be corrected before transmission.
+         * @param request Pointer to the request bytes.
+         * @param request_len The number of bytes that make up the request.
+         * @param ret_len The expected return length.
+         *
+         * Sends buffer at request, up to request_len, adds a checksum.
+         * Needs to know the returned number of bytes, checks if the appropiate
+         * length was returned and if the checksum matches.
+         * User needs to ensure that the ret_len never exceeds the buffer size.
+         * if initKWP has been called, the requestKWP will be called.
+         */
         bool request(void* request, uint8_t request_len, uint8_t ret_len);
-        // Sends buffer at request, up to request_len, adds a checksum.
-        // Needs to know the returned number of bytes, checks if the appropiate
-        // length was returned and if the checksum matches.
-        // User needs to ensure that the ret_len never exceeds the buffer size.
+        bool request9141(void* request, uint8_t request_len, uint8_t ret_len);
 
         /**
          * @brief Send a request with a variable number of return bytes.
@@ -148,6 +158,16 @@ class OBD9141{
          *       still be written to the internal buffer.
          */
         uint8_t request(void* request, uint8_t request_len);
+
+        /**
+         * @brief Send a request and read return bytes according to KWP protocol
+         * @param request The pointer to read the address from.
+         * @param request_len the length of the request.
+         * @return the number of bytes read if checksum matches.
+         * @note If checksum doesn't match return will be zero, but bytes will
+         *       still be written to the internal buffer.
+         */
+        uint8_t requestKWP(void* request, uint8_t request_len);
 
         // The following methods only work to read values from PID mode 0x01
         uint8_t readUint8(); // returns right part from the buffer as uint8_t
@@ -174,6 +194,7 @@ class OBD9141{
         // need to enable the port if we want to skip the init.
 
         bool init(); // attempts 'slow' ISO9141 5 baud init.
+        bool initKWP();  // attempts kwp2000 fast init.
         // returns whether the procedure was finished correctly.
         // The class keeps no track of whether this was successful or not.
         // It is up to the user to ensure that the initialisation is called.

@@ -70,7 +70,7 @@ typedef struct{
 } obd_unit;
 
 typedef struct{
-  uint32_t old_value;
+  int32_t old_value;
   elapsedMillis timesince;
 } obd_unit_state;
 
