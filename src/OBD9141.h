@@ -172,6 +172,7 @@ class OBD9141{
         // The following methods only work to read values from PID mode 0x01
         uint8_t readUint8(); // returns right part from the buffer as uint8_t
         uint16_t readUint16(); // idem...
+        uint32_t readUint32();
         uint8_t readUint8(uint8_t index); // returns byte on index.
 
         /**

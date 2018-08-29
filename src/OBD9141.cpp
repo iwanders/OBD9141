@@ -339,6 +339,10 @@ uint8_t OBD9141::readUint8(uint8_t index){
     return this->buffer[5 + index];
 }
 
+uint32_t OBD9141::readUint32(){
+  return (uint32_t(this->buffer[5]) << 24) | (uint32_t(this->buffer[6]) << 16) | (uint32_t(this->buffer[7]) << 8) | this->buffer[8]; // need to reverse endianness
+}
+
 uint8_t OBD9141::readBuffer(uint8_t index){
   return this->buffer[index];
 }
