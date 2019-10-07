@@ -27,7 +27,7 @@ void loop(){
     Serial.print("OBD9141_WAIT_FOR_ECHO_TIMEOUT: ");Serial.println(OBD9141_WAIT_FOR_ECHO_TIMEOUT);
     Serial.print("OBD9141_INTERSYMBOL_WAIT:      ");Serial.println(OBD9141_INTERSYMBOL_WAIT);
 
-    bool init_success =  obd.init();
+    bool init_success =  obd.init(false);
     Serial.print("init_success: ");
     Serial.println(init_success);
 
