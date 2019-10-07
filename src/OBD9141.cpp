@@ -352,8 +352,11 @@ uint16_t OBD9141::getTroubleCode(uint8_t index)
   return *reinterpret_cast<uint16_t*>(&(this->buffer[index*2 + 4]));
 }
 
-bool OBD9141::init(){
-    use_kwp_ = false;
+bool OBD9141::init(bool kwp_5baud){
+    if(kwp_5baud)
+        use_kwp_ = true;
+    else
+        use_kwp_ = false;
     // this function performs the ISO9141 5-baud 'slow' init.
     this->set_port(false); // disable the port.
     this->kline(true);
@@ -418,7 +421,7 @@ bool OBD9141::init(){
     OBD9141print("v2: "); OBD9141println(v2);
 
     // these two should be identical according to the spec.
-    if (v1 != v2){
+    if (!kwp_5baud && v1 != v2){
         return false;
     }
 
