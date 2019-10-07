@@ -31,7 +31,7 @@ void setup(){
 void loop(){
     SerialUSB.println("Looping");
 
-    bool init_success =  obd.init();
+    bool init_success =  obd.init(false);
     SerialUSB.print("init_success:");
     SerialUSB.println(init_success);
 
