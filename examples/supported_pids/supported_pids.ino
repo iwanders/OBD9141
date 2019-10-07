@@ -57,7 +57,7 @@ void loop()
 {
   Serial.println("Looping");
 
-  bool init_success =  obd.init();
+  bool init_success =  obd.init(false);
   Serial.print("init_success:");
   Serial.println(init_success);
 
