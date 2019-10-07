@@ -194,7 +194,7 @@ class OBD9141{
         // need to disable the port before init.
         // need to enable the port if we want to skip the init.
 
-        bool init(); // attempts 'slow' ISO9141 5 baud init.
+        bool init(bool kwp_5baud); // attempts 'slow' ISO9141 5 baud init and KWP 'slow' 5 baud init.       
         bool initKWP();  // attempts kwp2000 fast init.
         // returns whether the procedure was finished correctly.
         // The class keeps no track of whether this was successful or not.
