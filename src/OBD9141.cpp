@@ -176,7 +176,7 @@ uint8_t OBD9141::request(void* request, uint8_t request_len){
 
     OBD9141println();OBD9141print("A (");OBD9141print(answer_length);OBD9141print("): ");
 #ifdef OBD9141_DEBUG
-    for (uint8_t i=0; i < min(answer_length, OBD9141_BUFFER_SIZE); i++){
+    for (uint8_t i=0; i < answer_length; i++){
         OBD9141print(this->buffer[i]);OBD9141print(" ");
     };OBD9141println();
 #endif
