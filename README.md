@@ -11,7 +11,7 @@ Usage
 --------
 The code has been developed using [Teensy 3][teensy31], the K-line transceiver IC's used were during the development were the [MC33290][mc33290], [SN65HVDA100][SN65HVDA100] and [SN65HVDA195][SN65HVDA195]. All three transceiver IC's worked without problems when the typical application circuit from the datasheet was used. The OBD9141 class itself has been tested on one Kia car build in 2004.
 
-For the Teensy 3.x or LC versions it is recommended to use one of the HardwareSerial ports. For use with Arduino the [AltSoftSerial][altsoftserial] library is used by default. The example `reader_softserial` was tested with an Arduino UNO. The KWP functionality of this library was verified to work on a Teensy 3.5.
+For the Teensy 3.x or LC versions it is recommended to use one of the HardwareSerial ports. For use with Arduino the [AltSoftSerial][altsoftserial] library is used by default. The example `reader_softserial` was tested with an Arduino UNO. The KWP functionality of this library was verified to work on a Teensy 3.5. For ESP32 boards, please try the `reader_esp32` example.
 
 A minimal example of how to use the SN65HVDA195 chip mentioned is given by the following schematic:
 ![Schematic of circuit using SN65HVDA195](/../master/extras/OBD9141_reader/img/OBD9141_reader_cutout.png?raw=true "Schematic of circuit using SN65HVDA195")
