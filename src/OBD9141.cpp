@@ -352,7 +352,7 @@ uint16_t OBD9141::getTroubleCode(uint8_t index)
   return *reinterpret_cast<uint16_t*>(&(this->buffer[index*2 + 4]));
 }
 
-bool OBD9141::init(){
+bool OBD9141::initImpl(bool check_v1_v2){
     use_kwp_ = false;
     // this function performs the ISO9141 5-baud 'slow' init.
     this->set_port(false); // disable the port.
@@ -418,8 +418,10 @@ bool OBD9141::init(){
     OBD9141print("v2: "); OBD9141println(v2);
 
     // these two should be identical according to the spec.
-    if (v1 != v2){
-        return false;
+    if (check_v1_v2) {
+      if (v1 != v2){
+          return false;
+      }
     }
 
     // we obtained w1 and w2, now invert and send it back.
@@ -445,6 +447,21 @@ bool OBD9141::init(){
         }
     }
 }
+
+
+bool OBD9141::init(){
+  // Normal 9141-2 slow init, check v1 == v2.
+  return initImpl(true);
+}
+
+bool OBD9141::initKWPSlow(){
+  // KWP slow init, v1 == 233, v2 = 143, don't check v1 == v2.
+  bool res = initImpl(false);
+  // After the init, switch to kwp.
+  use_kwp_ = true;
+  return res;
+}
+
 
 bool OBD9141::initKWP(){
     use_kwp_ = true;

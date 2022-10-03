@@ -116,6 +116,8 @@ class OBD9141{
         uint8_t buffer[OBD9141_BUFFER_SIZE]; // internal buffer.
 
         bool use_kwp_;
+
+        bool initImpl(bool check_v1_v2);
     public:
         OBD9141();
 
@@ -196,6 +198,7 @@ class OBD9141{
 
         bool init(); // attempts 'slow' ISO9141 5 baud init.
         bool initKWP();  // attempts kwp2000 fast init.
+        bool initKWPSlow(); // attempts 'slow' 5 baud kwp init, v1 = 233, v2 = 143.
         // returns whether the procedure was finished correctly.
         // The class keeps no track of whether this was successful or not.
         // It is up to the user to ensure that the initialisation is called.
