@@ -1,10 +1,11 @@
 #include "Arduino.h"
 #include "OBD9141.h"
 
-#define RX_PIN 0
-#define TX_PIN 1
-#define EN_PIN 2
+#define RX_PIN 8
+#define TX_PIN 9
+#define EN_PIN 10
 
+AltSoftSerial altSerial;
 
 OBD9141 obd;
 
@@ -16,7 +17,7 @@ void setup(){
     pinMode(EN_PIN, OUTPUT);
     digitalWrite(EN_PIN, HIGH);
 
-    obd.begin(Serial1, RX_PIN, TX_PIN);
+    obd.begin(altSerial, RX_PIN, TX_PIN);
 
 }
     
@@ -65,7 +66,3 @@ void loop(){
     }
     delay(3000);
 }
-
-
-
-
