@@ -47,7 +47,7 @@ The following trouble-code related modes are supported: Reading stored trouble c
 
 ISO 14230-2 (KWP)
 -----------------
-The [ISO 14230-2][KWP] protocol uses the same physical layer as 9141-2, the support for this protocol was developed under [issue #11](https://github.com/iwanders/OBD9141/issues/11). If `initKWP()` is called instead of `init()` the KWP protocol is used for all requests onward. The provided functionality should be the same regardless of the protocol used. A sketch that just tests the KWP functionality is available [`readerKWP`](examples/readerKWP/readerKWP.ino).
+The [ISO 14230-2][KWP] protocol uses the same physical layer as 9141-2, the support for this protocol was developed under [issue #11](https://github.com/iwanders/OBD9141/issues/11). If `initKWP()` is called instead of `init()` the KWP protocol is used for all requests onward. The provided functionality should be the same regardless of the protocol used. A sketch that just tests the KWP functionality is available [`readerKWP`](examples/readerKWP/readerKWP.ino). A KWP slow init method was added based on [issue #34](https://github.com/iwanders/OBD9141/issues/34) and [issue #41](https://github.com/iwanders/OBD9141/issues/41), this is like the standard 9141-2 init, but `v1` and `v2` are not equal.
 
 License
 ------
