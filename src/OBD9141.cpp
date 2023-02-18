@@ -25,6 +25,13 @@ void OBD9141::set_port(bool enabled){
           g_APinDescription[this->rx_pin].pPort -> PIO_PDR = g_APinDescription[this->rx_pin].ulPin;
           g_APinDescription[this->tx_pin].pPort -> PIO_PDR = g_APinDescription[this->tx_pin].ulPin;
         #endif
+        #ifdef ESP_ARDUINO_VERSION_MAJOR
+          // For the ESP32 we need to pass the pin numbers, else they use the defaults depending on s3 non s3.
+          // https://github.com/espressif/arduino-esp32/blob/211ba18fa555f9be0f10556e6a6aee36ae673a79/cores/esp32/HardwareSerial.h#L109
+          // https://github.com/espressif/arduino-esp32/blob/2333df5ac650fd9ebc0a1a0d7df93851c86a95e1/cores/esp32/HardwareSerial.cpp#L77-L92
+          this->serial->begin(OBD9141_KLINE_BAUD, SERIAL_8N1, this->rx_pin, this->tx_pin);
+          return;
+        #endif
         this->serial->begin(OBD9141_KLINE_BAUD);
     } else {
         this->serial->end();
