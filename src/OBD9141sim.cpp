@@ -48,6 +48,12 @@ void OBD9141sim::initialize(){
     this->initialised = true;
 }
 
+void OBD9141sim::initializeKWP(){
+    use_kwp_ = true;
+    this->serial->begin(OBD9141_KLINE_BAUD);
+    this->initialised = true;
+}
+
 void OBD9141sim::setAnswer(uint8_t mode, uint8_t pid, uint8_t answer){
     this->setAnswer(mode, pid, 1, answer);
 }
