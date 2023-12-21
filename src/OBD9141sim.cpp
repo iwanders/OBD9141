@@ -104,7 +104,7 @@ void OBD9141sim::answerRequest(uint8_t mode, uint8_t pid){
     message[5] = 0;
     if (use_kwp_){
         // now we modify the message for KWP, the payload is the request_len - 3 header bytes
-        message[0] = 0x82 + (answer->len );
+        message[0] = 0x82 + answer->len;
         message[1] = 0xF1;
     }
     //memcpy(&(message[5]), &(answer->answer), answer->len);
