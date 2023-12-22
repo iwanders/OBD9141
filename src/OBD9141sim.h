@@ -75,7 +75,7 @@ class OBD9141sim{
 
         void handleRequests();
         void answerRequest(uint8_t mode, uint8_t pid);
-
+        bool use_kwp_;
         #ifdef OBD9141SIM_SIMULATE_INIT
         void handleInit();
         static void rx_interrupt ();
@@ -122,6 +122,10 @@ class OBD9141sim{
 
         void initialize();
         // puts the simulation to the initialised state, communication possible.
+        // not listening for the handshake.
+        
+        void initializeKWP();
+        // puts the simulation to the KWP initialised state, communication possible.
         // not listening for the handshake.
 
         void keep_init_state(bool force_init_state);

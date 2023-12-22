@@ -44,6 +44,13 @@ void OBD9141sim::keep_init_state(bool force_init_state){
 }
 
 void OBD9141sim::initialize(){
+    this->use_kwp_ = false;
+    this->serial->begin(OBD9141_KLINE_BAUD);
+    this->initialised = true;
+}
+
+void OBD9141sim::initializeKWP(){
+    this->use_kwp_ = true;
     this->serial->begin(OBD9141_KLINE_BAUD);
     this->initialised = true;
 }
@@ -96,6 +103,11 @@ void OBD9141sim::answerRequest(uint8_t mode, uint8_t pid){
     message[3] = 0x40 + mode; // is this actually what happens!?
     message[4] = pid;
     message[5] = 0;
+    if (use_kwp_){
+        // now we modify the message for KWP, the payload is the request_len - 3 header bytes
+        message[0] = 0x82 + answer->len;
+        message[1] = 0xF1;
+    }
     //memcpy(&(message[5]), &(answer->answer), answer->len);
     // cannot memcpy, need to swap the answer 
     for (uint8_t i=0; i < (answer->len) ; i++){
