@@ -25,7 +25,12 @@ void OBD9141::set_port(bool enabled){
           g_APinDescription[this->rx_pin].pPort -> PIO_PDR = g_APinDescription[this->rx_pin].ulPin;
           g_APinDescription[this->tx_pin].pPort -> PIO_PDR = g_APinDescription[this->tx_pin].ulPin;
         #endif
-        this->serial->begin(OBD9141_KLINE_BAUD);
+        // Esp32 needs the full being command with type and pins to work.
+        #ifdef ESP32
+          this->serial->begin(OBD9141_KLINE_BAUD, SERIAL_8N1, this->rx_pin, this->tx_pin);
+        #else
+          this->serial->begin(OBD9141_KLINE_BAUD);
+        #endif
     } else {
         this->serial->end();
         #ifdef ARDUINO_SAM_DUE
